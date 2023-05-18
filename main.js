@@ -31,14 +31,14 @@ server.listen(PORT, 'localhost', () => {
 const handle = {};
 
 handle.createRow = (i, dataFile, dataHtml) => {
-    const deleteHandler = () => {
+    const deleteHandle = () => {
         handle.deleteRow(dataFile, i);
     };
     dataHtml += '<tr>'
     dataHtml += `<td>${dataFile[i].id}</td>`
     dataHtml += `<td>${dataFile[i].name}</td>`
     dataHtml += `<td>${dataFile[i].price}</td>`
-    dataHtml += `<td><button class="btn btn-danger" onclick="${deleteHandler}">Delete</button></td>`
+    dataHtml += `<td><button class="btn btn-danger" onclick="${deleteHandle}">Delete</button></td>`
     dataHtml += `<td><button class="btn btn-info" >Update</button></td>`
     dataHtml += '</tr>'
     return dataHtml;
