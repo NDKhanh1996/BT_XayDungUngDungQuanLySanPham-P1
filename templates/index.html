@@ -9,6 +9,14 @@
 <div class="container">
     <div class="col-6">
         <h2>Customer manager</h2>
+        <form action="" method="post">
+            <span>
+                <input type="number" placeholder="Input id" name="ID">
+                <input type="text" placeholder="Input Name" name="name">
+                <input type="number" placeholder="Input Price" name="price">
+                <button type="submit">submit</button>
+            </span>
+        </form>
         <table class="table table-striped">
             <tr>
                 <td>STT</td>
@@ -19,9 +27,7 @@
             </tr>
             {list-user}
         </table>
-
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>

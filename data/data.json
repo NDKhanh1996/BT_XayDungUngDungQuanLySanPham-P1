@@ -13,5 +13,10 @@
     "id": 3,
     "name": "Samsung Note 21",
     "price": 40000
+  },
+  {
+    "id": 4,
+    "name": "htc",
+    "price": 30000
   }
 ]

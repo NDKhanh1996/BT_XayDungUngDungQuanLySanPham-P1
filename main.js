@@ -1,57 +1,66 @@
+const handle = require('./handle/handle')
 const http = require('http');
 const fs = require('fs');
+const qs = require('qs')
 const PORT = 8080;
+
 
 const server = http.createServer((req, res) => {
     let dataFile;
     let dataHtml = '';
-    let arrayRow = [];
 
-    fs.readFile('./data/data.json', "utf-8", (err, data) => {
-        dataFile = JSON.parse(data);
-        console.log(JSON.parse(data))
-        // console.log(dataFile)
-        // console.log(data)
-        for (let i = 0; i < dataFile.length; i++) {
-            dataHtml = handle.createRow(i, dataFile, dataHtml)
-        }
-    });
+    if (req.method === 'GET') {
+        fs.readFile('./data/data.json', "utf-8", (err, data) => {
+            dataFile = JSON.parse(data);
+            for (let i = 0; i < dataFile.length; i++) {
+                dataHtml = handle.createRow(i, dataFile, dataHtml)
+            }
+        });
 
-    fs.readFile('./templates/index.html', "utf-8", (err, data) => {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        data = data.replace('{list-user}', dataHtml);
-        res.write(data);
-        return res.end();
-    });
+        fs.readFile('./templates/index.html', "utf-8", (err, data) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            data = data.replace('{list-user}', dataHtml);
+            res.write(data);
+            return res.end();
+        });
+    } else {
+        req.on("data", (chunk) => {
+            dataHtml += chunk;
+        });
+        req.on("end", () => {
+            fs.readFile('./data/data.json', "utf-8", (err, data) => {
+                dataFile = JSON.parse(data);
+                const parsedQuery = qs.parse(dataHtml)
+                const product = {
+                    id: parseInt(parsedQuery.ID),
+                    name: parsedQuery.name,
+                    price: parseFloat(parsedQuery.price.replace(/[^0-9.-]+/g, ""))
+                };
+                dataFile.push(product)
+                const dataFileToString = JSON.stringify(dataFile)
+                fs.writeFile('./data/data.json', dataFileToString, () => {
+                    if (err) throw err.message
+                })
+                for (let i = 0; i < dataFile.length; i++) {
+                    dataHtml = handle.createRow(i, dataFile, dataHtml)
+                }
+            });
+            fs.readFile('./templates/index.html', "utf-8", (err, data) => {
+                res.writeHead(200, {'Content-Type': "text/html"});
+                data = data.replace('{list-user}', dataHtml);
+                res.write(data);
+                return res.end()
+            });
+        });
+        req.on("error", () => {
+            res.end('error')
+        })
+
+    }
 });
 server.listen(PORT, 'localhost', () => {
     console.log('server is running at http://localhost:8080');
 });
 
-const handle = {};
 
-handle.createRow = (i, dataFile, dataHtml) => {
-    const deleteHandle = () => {
-        handle.deleteRow(dataFile, i);
-    };
-    dataHtml += '<tr>'
-    dataHtml += `<td>${dataFile[i].id}</td>`
-    dataHtml += `<td>${dataFile[i].name}</td>`
-    dataHtml += `<td>${dataFile[i].price}</td>`
-    dataHtml += `<td><button class="btn btn-danger" onclick="${deleteHandle}">Delete</button></td>`
-    dataHtml += `<td><button class="btn btn-info" >Update</button></td>`
-    dataHtml += '</tr>'
-    return dataHtml;
-}
-
-handle.deleteRow = (dataFile, id) => {
-    const index = dataFile.findIndex(item => item.id === id);
-    let data = '';
-    if (index !== -1) {
-        dataFile.splice(index, 1);
-        data = JSON.stringify(dataFile)
-        fs.writeFileSync('./data/data.json', data);
-        console.log(data)
-    }
-}
 
